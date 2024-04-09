@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <link rel='stylesheet' type='text/css' href='https://cdn.datatables.net/1.13.1/css/jquery.dataTables.min.css'/>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js'></script>
+    <script src='https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js'></script>
+
+    <title>Firestore Data to Table</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            cursor: pointer;
+        }
+        th:hover {
+            background-color: #ddd;
+        }
+        .content_box {
+            display: none;
+        }
+
+        #horizontal-menu {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex; /* Make the list items display horizontally */
+        }
+
+        #horizontal-menu li {
+            margin-right: 10px; /* Adjust spacing between items */
+        }
+
+        #horizontal-menu li:last-child {
+            margin-right: 0; /* Remove margin from the last item */
+        }
+
+        #horizontal-menu li:hover {
+            cursor: pointer;
+            text-decoration: underline; /* Add underline effect on hover */
+        }
+
+        .stat-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 15px;
+        }
+        .stat-item {
+            width: 200px;
+            margin-bottom: 15px;
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .stat-label {
+            font-weight: bold;
+        }
+        .stat-value {
+            margin-top: 5px;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+
+
+        .flex-item {
+            flex: 0 0 20%; /* 25% width for each column */
+            max-width: 150px;
+            
+
+        }
+        .flex-item-sub {
+            flex: 0 0 100%; /* 25% width for each column */
+            height: 50px; /* Set height as per your requirement */
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 50px;
+        }
+
+        .flex-item-sub:nth-child(odd) {
+            background-color: #f2f2f2; /* Light gray background color */
+        }
+
+        .flex-item-sub:first-child {
+             font-weight: bold;
+        }
+
+        .flex-item:first-child {
+               font-weight: bold;
+        }
+
+
+        .flex-stat-first {
+            flex: 0 0 100%; /* 25% width for each column */
+            height: 50px; /* Set height as per your requirement */
+            line-height: 50px;
+            text-align: center;
+            line-height: 50px;
+        }
+
+
+
+
+    </style>
+</head>
+<body>
+    <div class='header' >
+        <H1>Stat Tracker</H1>
+        <ul id="horizontal-menu">
+            <li id='go_player_stats'>Player Stats</li>
+            <li id='go_game_stats'>Game Stats</li>
+            <li id='go_records'>Records</li>
+        </ul>
+    </div>  
+    <div class='content' >
+        <div class='content_box' id='content_box_menu'>
+
+        </div> 
+        <div class='content_box' >
+
+        </div> 
+        <div class='content_box' id='content_box_player_stats'>
+            <H2 id='player_stat_name' >Player Name</H2>
+
+
+            <H3>Career</H3>
+            <div class="stat-container">
+                <div class="stat-item">
+                    <div class="stat-label">Shots</div>
+                    <div class="stat-value" id="shotsValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Shots on Goal</div>
+                    <div class="stat-value" id="shotsOnGoalValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Goals</div>
+                    <div class="stat-value" id="goalsValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Assists</div>
+                    <div class="stat-value" id="assistsValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Groundballs</div>
+                    <div class="stat-value" id="groundballsValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Caused Turnovers</div>
+                    <div class="stat-value" id="causedTurnoversValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Turnovers</div>
+                    <div class="stat-value" id="turnoversValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Draws Taken</div>
+                    <div class="stat-value" id="drawsTakenValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Draws Won</div>
+                    <div class="stat-value" id="drawsWonValue"></div> 
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Draw Control</div>
+                    <div class="stat-value" id="drawControlValue"></div> 
+                </div>
+            </div>
+            <br>
+            <br>
+            <H3>Season Stats</H3>
+            <table id='player_stats_seasons' class='display'>                        
+                <thead>
+                    <tr>  
+                        <th>Year</th>
+                        <th>Shots</th>
+                        <th>Shots On Goal</th>
+                        <th>Goals</th>
+                        <th>Assists</th>
+                        <th>Groundballs</th>
+                        <th>Caused Turnovers</th>
+                        <th>Turnovers</th>
+                        <th>Draw Taken</th>
+                        <th>Draw Won</th>
+                        <th>Draw Controls</th>
+                    </tr>
+                </thead>
+            </table>
+             <br>
+            <br>
+            <div class="flex-container">
+
+                <div class="flex-item">
+                    <div class="flex-stat-first"></div>
+                    <div class="flex-item-sub">Shots</div>
+                    <div class="flex-item-sub">Shots On Goal</div>
+                    <div class="flex-item-sub">Goals</div>
+                    <div class="flex-item-sub">Assists</div>
+                    <div class="flex-item-sub">Groundballs</div>
+                    <div class="flex-item-sub">Caused Turnovers</div>
+                    <div class="flex-item-sub">Turnovers</div>
+                    <div class="flex-item-sub">Draw Taken</div>
+                    <div class="flex-item-sub">Draw Won</div>
+                    <div class="flex-item-sub">Draw Controls</div>
+                </div>
+
+            </div>
+        </div> 
+        <div class='content_box' id='content_box_player_table'>
+            <table id='player_table' class='display'>
+                <thead>
+                    <tr>
+                        <th>First</th>
+                        <th>Last</th> 
+                        <th>ID</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>First</th>
+                        <th>Last</th>
+                        <th>ID</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div> 
+    </div>  
+
+    <script type='module'>
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: 'AIzaSyCySygEpn3Ka4dL-Wc51K5mrx83HS2Z6Lc',
+            authDomain: 'west-jordan-stats.firebaseapp.com',
+            projectId: 'west-jordan-stats',
+            storageBucket: 'west-jordan-stats.appspot.com',
+            messagingSenderId: '81720331896',
+            appId: '1:81720331896:web:6992f3fc5c65b5100ee78d',
+            measurementId: 'G-482WB9KEXS'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // DataTable options
+        const dataTableOptions = {
+            'paging': false,
+            'autoWidth': false,
+            'columnDefs': [{ type: 'natural', targets: 2 }],
+            'searching': false,
+            'orderCellsTop': true,
+            'fixedHeader': true,
+            'responsive': true,
+        };
+
+        async function getPlayers() {
+            try {
+                const q = query(collection(db, 'player'));
+                const snapshot = await getDocs(q);
+
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching names:', error);
+            }
+        }
+
+        async function getPlayerStats(playerId) {
+            try {
+                const q = query(collection(db, 'stat'), where('player_id', '==', playerId));
+                const snapshot = await getDocs(q);
+                // console.log(snapshot.docs.map(doc => doc.data()));
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        }
+
+        async function getPlayerGames(gameIds) {
+            try {
+                const gameData = [];
+                const chunkSize = 30;
+
+                // Split gameIds array into chunks
+                for (let i = 0; i < gameIds.length; i += chunkSize) {
+                    const chunk = gameIds.slice(i, i + chunkSize);
+
+                    // Query Firestore for each chunk
+                    const q = query(collection(db, 'game'), where('game_id', 'in', chunk));
+                    const snapshot = await getDocs(q);
+
+                    // Add query results to gameData array
+                    snapshot.docs.forEach(doc => {
+                        gameData.push(doc.data());
+                    });
+                }   
+
+                return gameData;
+            } catch (error) {
+                console.error('Error fetching game data:', error);
+                return [];
+            }
+        }
+
+
+        async function populatePlayerList() {         
+            $('#player_table').DataTable({
+                ...dataTableOptions,
+                'data': await getPlayers(),               
+                'order': [[ 2, 'desc' ]],
+                'columns': [
+                    { 'data': 'first_name'},  
+                    { 'data': 'last_name'}, 
+                    { 'data': 'player_id' },   
+                    ],
+                initComplete: function(settings, json){
+                    $('#player_table tbody tr').on('click', function(){
+                        let data = $('#player_table').DataTable().row(this).data();
+                        populatePlayerStats(data);                                
+                    });
+                }
+            });
+        }
+
+        async function populatePlayerStats(data) {
+            try {
+                //update player name
+                $('#player_stat_name').html(data.first_name + ' ' + data.last_name) ;
+
+                // Get player stats and gamedata
+                let statData = await getPlayerStats(data.player_id);
+                let gameData = await getPlayerGames(statData.map(obj => obj['game_id']));
+
+                populateAllTimeStats(statData);
+
+                // Create a map from gameData to easily associate game id's to a year range
+                const yearMap = new Map(gameData.map(item => [item.game_id, getYearFromDate(item.date)]));
+
+                // Tally the values of fields in players based on game_id values in gameData
+                const seasonData = statData.reduce((acc, curr) => {
+                    const year = yearMap.get(curr.game_id);
+                    acc[year] = acc[year] || { shots: 0, shots_on_goal: 0, goals: 0, assists: 0, groundballs: 0, caused_turnover: 0, turnover: 0, draw_taken: 0, draw_won: 0, draw_control: 0 };
+                    ['shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control'].forEach(key => {
+                        acc[year][key] += parseInt(curr[key], 10) || 0;
+                    });
+                    return acc;
+                }, {});
+
+                const seasonDataArray = Object.entries(seasonData).map(([year, data]) => ({ year, ...data }));               
+
+                const sortedData = {};
+                Object.keys(seasonData)
+                .sort((a, b) => b.localeCompare(a))
+                .forEach(key => {
+                    sortedData[key] = seasonData[key];
+                });
+const $flexContainer = $('.flex-container');
+
+// Select all flex-items except the original one
+const $flexItemsToRemove = $flexContainer.find('.flex-item:not(:first-child)');
+
+// Remove the selected flex-items
+$flexItemsToRemove.remove();
+
+                $.each(sortedData, function(index, value) {                      
+                   const flexItem = $("<div>").addClass("flex-item");
+
+
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(index));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.shots));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.shots_on_goal));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.goals));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.assists));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.groundballs));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.caused_turnover));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.turnover));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.draw_taken));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.draw_won));
+                   flexItem.append($("<div>").addClass("flex-item-sub").text(value.draw_control));
+
+
+                    // Append the flex item to the container
+                   $(".flex-container").append(flexItem);
+               });
+
+
+                refresh("player_stats_seasons");
+
+                $('#player_stats_seasons').DataTable({
+                    ...dataTableOptions,
+                    'data': seasonDataArray,
+                    'order': [[0, 'asc']],
+                    'columns': [
+                        { 'data': 'year', 'width': '10%' },
+                        { 'data': 'shots', 'width': '10%' },
+                        { 'data': 'shots_on_goal', 'width': '10%' },
+                        { 'data': 'goals', 'width': '10%' },
+                        { 'data': 'assists', 'width': '10%' },
+                        { 'data': 'groundballs', 'width': '10%' },
+                        { 'data': 'caused_turnover', 'width': '10%' },
+                        { 'data': 'turnover', 'width': '10%' },
+                        { 'data': 'draw_taken', 'width': '10%' },
+                        { 'data': 'draw_won', 'width': '10%' },
+                        { 'data': 'draw_control', 'width': '10%' },
+                        ]
+                });
+
+
+                $('#content_box_player_table').hide();
+                $('#content_box_player_stats').show();
+            } catch (error) {
+                console.error('Error populating player stats:', error);
+            }
+        }
+
+        function populateAllTimeStats(statData) {
+            const stats = sumColumns(statData, 'shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control');
+
+            $('#shotsValue').html(stats.shots);
+            $('#shotsOnGoalValue').html(stats.shots_on_goal);
+            $('#goalsValue').html(stats.goals);
+            $('#assistsValue').html(stats.assists);
+            $('#groundballsValue').html(stats.groundballs);
+            $('#causedTurnoversValue').html(stats.caused_turnover);
+            $('#turnoversValue').html(stats.turnover);
+            $('#drawsTakenValue').html(stats.draw_taken);
+            $('#drawsWonValue').html(stats.draw_won);
+            $('#drawControlValue').html(stats.draw_control);
+        }
+
+        function sumColumns(jsonArray, ...columns) {
+            const sums = {};
+            columns.forEach(column => {
+                sums[column] = jsonArray.reduce((acc, obj) => {
+                    // Convert string to number if possible, otherwise treat as 0
+                    const value = isNaN(obj[column]) ? 0 : Number(obj[column]);
+                    return acc + value;
+                }, 0);
+            });
+            return sums;
+        }
+
+        function getYearFromDate(dateString) {
+            const date = new Date(dateString);
+            const startYear = 2014;
+            const currentYear = new Date().getFullYear();
+            const endYear = date >= new Date(currentYear, 5, 1) ? currentYear + 1 : currentYear; // Dynamically calculate the end year
+            
+            for (let year = startYear; year < endYear; year++) {
+                const startDate = new Date(year, 5, 1); // June 1st
+                const endDate = new Date(year + 1, 4, 31); // May 31st of the next year
+                
+                if (date >= startDate && date <= endDate) {
+                    return `${year} - ${year + 1}`;
+                }
+            }
+            
+            return "Date is not within any of the specified ranges";
+        }
+
+
+        async function refresh(tableId) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        $(document).ready(async function() {
+            populatePlayerList();
+            $('#content_box_player_table').show(); 
+
+            $('#go_player_stats').click(function(){
+                $('.content_box').hide();                
+                $('#content_box_player_table').show();                
+            });
+        });
+    </script>
+</body>
+</html>
