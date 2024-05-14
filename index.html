@@ -25,17 +25,25 @@
         th:hover {
             background-color: #ddd;
         }
+        h3 {
+            margin-top: 30px;
+            max-width: 800px;
+            line-height: 50px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
 
-        .content_box {
+        .content-box {
             display: none;
         }
 
-        #content_box_player_table {
+        #content-box-player-table {
             max-width: 800px;
             margin-top: 15px;
         }
 
-        #player_table_filter {
+        #player-table-filter {
             margin-bottom: 5px;
         }
 
@@ -66,6 +74,7 @@
             margin-top: 15px;
             max-width: 800px;
         }
+
         .stat-item {
             width: 200px;
             margin-bottom: 15px;
@@ -74,12 +83,64 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         .stat-label {
             font-weight: bold;
         }
+
         .stat-value {
             margin-top: 5px;
         }
+
+        .record-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 15px;
+    max-width: 800px;
+}
+
+.record-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+    max-width: 200px;
+    min-width: 180px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    overflow: hidden; /* Add overflow to prevent border overflow */
+}
+
+.record-title {
+    width: 100%;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ccc;
+    background-color: #f2f2f2;
+    white-space: nowrap; /* Prevent title text from wrapping */
+    overflow: hidden; /* Hide any overflow text */
+    text-overflow: ellipsis; /* Show ellipsis for overflow text */
+}
+
+.record-item {
+    width: 100%;
+    text-align: center;
+    padding: 15px 0px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.record-name {
+    font-weight: bold;
+}
+
+.record-value {
+    margin-top: 5px;
+}
+
 
         .season-stat-container {
             display: flex;
@@ -87,7 +148,6 @@
             justify-content: center;
             max-width: 800px;
         }
-
 
         .season-stat-col {
             flex: 0 0 20%; /* 25% width for each column */
@@ -109,174 +169,61 @@
         }
 
         .season-stat-row:first-child {
-             font-weight: bold;
-         }
+           font-weight: bold;
+       }
 
-         .season-stat-col:first-child {
-            font-weight: bold;
+       .season-stat-col:first-child {
+        font-weight: bold;
         }
-
 
         .season-stat-first {
             flex: 0 0 100%; /* 25% width for each column */
             height: 50px; /* Set height as per your requirement */
             line-height: 50px;
             text-align: center;
-        }
-
-        h3 {
-            margin-top: 30px;
-            max-width: 800px;
-            line-height: 50px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-
+        }        
 </style>
 </head>
 <body>
     <div class='header' >
         <H1>Stat Tracker</H1>
         <ul id="horizontal-menu">
-            <li id='go_player_stats'>Player Stats</li>
-            <li id='go_game_stats'>Game Stats</li>
-            <li id='go_records'>Records</li>
+            <li id='go-player-stats'>Player Stats</li>
+            <li id='go-game-stats'>Game Stats</li>
+            <li id='go-records'>Records</li>
         </ul>
     </div>  
     <div class='content' >
-        <div class='content_box' id='content_box_menu'>
+        <div class='content-box' id='content-box-menu'>
 
         </div> 
-        <div class='content_box' >
 
+        <div class='content-box' id='content-box-records'>            
+            <div class="record-container">                
+            </div>        
         </div> 
-        <div class='content_box' id='content_box_player_stats'>
-            <H2 id='player_stat_name' >Player Name</H2>
+
+        <div class='content-box' id='content-box-player-stats'>
+            <H2 id='player-stat-name' >Player Name</H2>
 
 
             <H3>Career Stats</H3>
-            <div class="stat-container">
-                <div class="stat-item">
-                    <div class="stat-label">Shots</div>
-                    <div class="stat-value" id="shotsValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Shots on Goal</div>
-                    <div class="stat-value" id="shotsOnGoalValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Goals</div>
-                    <div class="stat-value" id="goalsValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Assists</div>
-                    <div class="stat-value" id="assistsValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Groundballs</div>
-                    <div class="stat-value" id="groundballsValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Caused Turnovers</div>
-                    <div class="stat-value" id="causedTurnoversValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Turnovers</div>
-                    <div class="stat-value" id="turnoversValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draws Taken</div>
-                    <div class="stat-value" id="drawsTakenValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draws Won</div>
-                    <div class="stat-value" id="drawsWonValue"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draw Control</div>
-                    <div class="stat-value" id="drawControlValue"></div> 
-                </div>
+            <div class="stat-container" id="cRecords">
             </div>
-
 
 
             <H3>Season Stats</H3>
             <div class="season-stat-container">
-                <div class="season-stat-col">
-                    <div class="season-stat-first"></div>
-                    <div class="season-stat-row">Shots</div>
-                    <div class="season-stat-row">Shots On Goal</div>
-                    <div class="season-stat-row">Goals</div>
-                    <div class="season-stat-row">Assists</div>
-                    <div class="season-stat-row">Groundballs</div>
-                    <div class="season-stat-row">Caused Turnovers</div>
-                    <div class="season-stat-row">Turnovers</div>
-                    <div class="season-stat-row">Draw Taken</div>
-                    <div class="season-stat-row">Draw Won</div>
-                    <div class="season-stat-row">Draw Controls</div>
-                </div>
             </div>
-
-
 
             <H3>Personal Records</H3>
-            <div class="stat-container">
-                <div class="stat-item">
-                    <div class="stat-label">Shots</div>
-                    <div class="stat-value" id="shotsRecord"></div> 
-                    <div class="stat-value" id="shotsGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Shots on Goal</div>
-                    <div class="stat-value" id="shotsOnGoalRecord"></div>
-                    <div class="stat-value" id="shotsOnGoalGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Goals</div>
-                    <div class="stat-value" id="goalsRecord"></div>
-                    <div class="stat-value" id="goalsGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Assists</div>
-                    <div class="stat-value" id="assistsRecord"></div>
-                    <div class="stat-value" id="assistsGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Groundballs</div>
-                    <div class="stat-value" id="groundballsRecord"></div>
-                    <div class="stat-value" id="groundballsGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Caused Turnovers</div>
-                    <div class="stat-value" id="causedTurnoversRecord"></div>
-                    <div class="stat-value" id="causedTurnoversGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Turnovers</div>
-                    <div class="stat-value" id="turnoversRecord"></div>
-                    <div class="stat-value" id="turnoversGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draws Taken</div>
-                    <div class="stat-value" id="drawsTakenRecord"></div>
-                    <div class="stat-value" id="drawsTakenGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draws Won</div>
-                    <div class="stat-value" id="drawsWonRecord"></div>
-                    <div class="stat-value" id="drawsWonGame"></div> 
-                </div>
-                <div class="stat-item">
-                    <div class="stat-label">Draw Control</div>
-                    <div class="stat-value" id="drawControlRecord"></div>
-                    <div class="stat-value" id="drawControlGame"></div> 
-                </div>
+            <div class="stat-container" id="pRecords">
+
             </div>
         </div> 
-        <div class='content_box' id='content_box_player_table'>
-            <table id='player_table' class='display'>
+
+        <div class='content-box' id='content-box-player-table'>
+            <table id='player-table' class='display'>
                 <thead>
                     <tr>
                         <th>First</th>
@@ -312,6 +259,9 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const playerData = await fetchPlayers();
+        const statData = await  fetchStats();
+        const gameData = await fetchGames();
 
         // DataTable options
         const dataTableOptions = {
@@ -324,59 +274,137 @@
             'responsive': true,
         };
 
-        async function getPlayers() {
+        const displayStats = {
+            'shots': 'Shots', 
+            'shots_on_goal': 'Shots On Goal', 
+            'goals': 'Goals', 
+            'assists': 'Assists', 
+            'groundballs': 'Groundballs', 
+            'caused_turnover': 'Caused Turnover', 
+            // 'turnover': 'Turnover', 
+            'draw_taken': 'Draw Taken', 
+            'draw_won': 'Draw Won', 
+            'draw_control': 'Draw Control'
+        };
+
+
+        //----------Datebase Calls----------//
+        async function fetchPlayers() {
             try {
                 const q = query(collection(db, 'player'));
                 const snapshot = await getDocs(q);
-
+                console.log('fetchPlayers');
+                console.log(snapshot.docs.map(doc => doc.data()));
                 return snapshot.docs.map(doc => doc.data());
             } catch (error) {
                 console.error('Error fetching names:', error);
             }
         }
 
-        async function getPlayerStats(playerId) {
+        async function fetchStats() {
             try {
-                const q = query(collection(db, 'stat'), where('player_id', '==', playerId));
+                const q = query(collection(db, 'stat'));
                 const snapshot = await getDocs(q);
+                console.log('fetchStats');
+                console.log(snapshot.docs.map(doc => doc.data()));    
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching names:', error);
+            }
+        }
+
+        async function fetchGames() {
+            try {
+                const q = query(collection(db, 'game'));
+                const snapshot = await getDocs(q);
+                console.log('fetchGames');
                 console.log(snapshot.docs.map(doc => doc.data()));
                 return snapshot.docs.map(doc => doc.data());
             } catch (error) {
-                console.error('Error fetching data:', error);
+                console.error('Error fetching names:', error);
             }
         }
 
-        async function getPlayerGames(gameIds) {
+        function populateTeamRecords() {
             try {
-                const gameData = [];
-                const chunkSize = 30;
+                const topTenRecords = {};
 
-                // Split gameIds array into chunks
-                for (let i = 0; i < gameIds.length; i += chunkSize) {
-                    const chunk = gameIds.slice(i, i + chunkSize);
+                 // Initialize topTenRecords object with empty arrays for each key
+                Object.keys(statData[0]).forEach(key => {
+                    if (key !== 'game_id' && key !== 'player_id') {
+                        topTenRecords[key] = [];
+                    }
+                });
 
-                    // Query Firestore for each chunk
-                    const q = query(collection(db, 'game'), where('game_id', 'in', chunk));
-                    const snapshot = await getDocs(q);
+                // Iterate through each stat object
+                statData.forEach(obj => {
+                // Iterate through each key in the object
+                    Object.keys(obj).forEach(key => {
+                        // Skip if key is 'game_id' or 'player_id'
+                        if (key === 'game_id' || key === 'player_id') {
+                            return;
+                        }
+                        // Skip if value is empty or not a number
+                        if (!obj[key] || isNaN(obj[key])) {
+                            return;
+                        }
+                        // Find the corresponding player object
+                        const player = playerData.find(player => player.player_id === obj.player_id);
+                        const playerName = player ? `${player.first_name} ${player.last_name}` : '';
 
-                    // Add query results to gameData array
-                    snapshot.docs.forEach(doc => {
-                        gameData.push(doc.data());
+                        // Update top ten records for the current key
+                        updateTopTenRecords(topTenRecords[key], obj[key], playerName);
                     });
-                }   
-                console.log(gameData);
-                return gameData;
+                });
+
+
+                //HTML GEN
+                const $recordContainer = $('.record-container');
+                $recordContainer.html('');
+
+                $.each(displayStats, function(index, category) {   
+                    const $recordBox = $('<div>').addClass('record-box');                
+                    $recordBox.append($('<div>').text(category).addClass('record-title'));
+
+                    $.each(topTenRecords[index], function(index, record) {       
+                        let $recordItem = $('<div>').addClass('record-item');                 
+                        $recordItem.append($('<span>').text(record.playerInfo).addClass('record-name'));
+                        $recordItem.append($('<span>').text(record.value).addClass('record-value'));                      
+                        $recordBox.append($recordItem);
+                    });                    
+
+                    $recordContainer.append($recordBox);
+                });
+
+                $contentBox.append($recordContainer); 
+
             } catch (error) {
-                console.error('Error fetching game data:', error);
-                return [];
+                console.error('Error populating team records:', error);
             }
         }
 
+        function updateTopTenRecords(records, value, playerName) {
+            // If records array is not full yet, add the value directly
+            if (records.length < 5) {
+                records.push({ value: value, playerInfo: playerName });
+                // Sort records array in descending order of values
+                records.sort((a, b) => b.value - a.value);
+            } else {
+                // If records array is full, compare the value with the lowest value in the array
+                const lowestValue = records[records.length - 1].value;
+                if (value > lowestValue) {
+                    // Replace the lowest value with the new value and sort the array again
+                    records.pop();
+                    records.push({ value: value, playerInfo: playerName });
+                    records.sort((a, b) => b.value - a.value);
+                }
+            }
+        }
 
-        async function populatePlayerList() {         
-            $('#player_table').DataTable({
+        function populatePlayerList() {  
+            $('#player-table').DataTable({
                 ...dataTableOptions,
-                'data': await getPlayers(),               
+                'data': playerData,               
                 'order': [[ 2, 'desc' ]],
                 'columns': [
                     { 'data': 'first_name'},  
@@ -385,65 +413,70 @@
                     ],
                 searching: true,
                 initComplete: function(settings, json){
-                    $('#player_table tbody tr').on('click', function(){
-                        let data = $('#player_table').DataTable().row(this).data();
+                    $('#player-table tbody tr').on('click', function(){
+                        let data = $('#player-table').DataTable().row(this).data();
                         populatePlayerStats(data);                                
                     });
                 }
             });
         }
 
-        async function populatePlayerStats(data) {
+        function populatePlayerStats(data) {
             try {
                 //update player name
-                $('#player_stat_name').html(data.first_name + ' ' + data.last_name) ;
+                $('#player-stat-name').html(data.first_name + ' ' + data.last_name) ;
 
                 // Get player stats and gamedata
-                let statData = await getPlayerStats(data.player_id);
-                let gameData = await getPlayerGames(statData.map(obj => obj['game_id']));
+                let playerStats = statData.filter(obj => obj["player_id"] === data.player_id).map(obj => ({...obj}));
+  
+                let gameIds = playerStats.map(obj => obj['game_id']);
+ 
+                let playerGames = gameData.filter(obj => gameIds.includes(obj.game_id));
 
                 //Show career totals
-                populateACareerStats(statData);
-
+                populatePlayerCareerStats(playerStats);
 
                 // Begin creating an overview of the seasons they played and the stat totlas for each season
-                populateSeasonStats(statData, gameData);
-
+                populatePlayerSeasonStats(playerStats, playerGames);
 
                 //Now we find their personal best for every stat and the game they accomplished it in          
-                populateRecordStats(statData, gameData);
-
+                populatePlayerRecordStats(playerStats, playerGames);
 
                 //Show our work
-                $('#content_box_player_table').hide();
-                $('#content_box_player_stats').show();
+                $('#content-box-player-table').hide();
+                $('#content-box-player-stats').show();
             } catch (error) {
                 console.error('Error populating player stats:', error);
             }
         }
 
-        function populateACareerStats(statData) {
-            const stats = sumColumns(statData, 'shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control');
+        function populatePlayerCareerStats(playerStats) {
+            const stats = sumColumns(playerStats, 'shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control');
 
-            $('#shotsValue').html(stats.shots);
-            $('#shotsOnGoalValue').html(stats.shots_on_goal);
-            $('#goalsValue').html(stats.goals);
-            $('#assistsValue').html(stats.assists);
-            $('#groundballsValue').html(stats.groundballs);
-            $('#causedTurnoversValue').html(stats.caused_turnover);
-            $('#turnoversValue').html(stats.turnover);
-            $('#drawsTakenValue').html(stats.draw_taken);
-            $('#drawsWonValue').html(stats.draw_won);
-            $('#drawControlValue').html(stats.draw_control);
+            //HTML GEN
+            const $statContainer = $('#cRecords');
+            $statContainer.html('');
+            $.each(displayStats, function(index, category) {               
+                const $statItem = $('<div>').addClass('stat-item');                
+                $statItem.append($('<div>').text(category).addClass('stat-label'));
+                $statItem.append($('<div>').text(stats[index]).addClass('stat-value'));
+
+                $statContainer.append($statItem);
+
+            });
         }
 
-        function populateRecordStats(statData, gameData) {          
+        function populatePlayerRecordStats(playerStats, playerGames) {          
             const record = {};
 
             // Iterate through each object in the statData array
-            statData.forEach(obj => {
+            playerStats.forEach(obj => {
                 // Iterate through each key (stat) in the object
                 Object.keys(obj).forEach(key => {
+                    // Skip if key is 'game_id' or 'player_id'
+                    if (key === 'game_id' || key === 'player_id') {
+                        return;
+                    }                    
                     // Check if the value is empty or not a number
                     if (!obj[key] || isNaN(obj[key])) {
                         // If the value is empty, set it to 0
@@ -452,7 +485,7 @@
                     // Update highest value and corresponding game info if current value is higher
                     if (!record[key] || obj[key] > record[key].value) {
                         // Find the corresponding game object based on game_id
-                        const gameObj = gameData.find(game => game.game_id === obj.game_id);
+                        const gameObj = playerGames.find(game => game.game_id === obj.game_id);
                         // Define game information
                         let gameInfo = "";
                         if (gameObj && obj[key] > 0) {
@@ -464,37 +497,31 @@
                 });
             }); 
 
-            $('#shotsRecord').html(record.shots.value);
-            $('#shotsGame').html(record.shots.gameInfo);
-            $('#shotsOnGoalRecord').html(record.shots_on_goal.value);
-            $('#shotsOnGoalGame').html(record.shots_on_goal.gameInfo);
-            $('#goalsRecord').html(record.goals.value);
-            $('#goalsGame').html(record.goals.gameInfo);
-            $('#assistsRecord').html(record.assists.value);
-            $('#assistsGame').html(record.assists.gameInfo);
-            $('#groundballsRecord').html(record.groundballs.value);
-            $('#groundballsGame').html(record.groundballs.gameInfo);
-            $('#causedTurnoversRecord').html(record.caused_turnover.value);
-            $('#causedTurnoversGame').html(record.caused_turnover.gameInfo);
-            $('#turnoversRecord').html(record.turnover.value);
-            $('#turnoversGame').html(record.turnover.gameInfo);
-            $('#drawsTakenRecord').html(record.draw_taken.value);
-            $('#drawsTakenGame').html(record.draw_taken.gameInfo);
-            $('#drawsWonRecord').html(record.draw_won.value);
-            $('#drawsWonGame').html(record.draw_won.gameInfo);
-            $('#drawControlRecord').html(record.draw_control.value);
-            $('#drawControlGame').html(record.draw_control.gameInfo);
+
+            //HTML GEN
+            const $statContainer = $('#pRecords');
+
+            $statContainer.html('');
+            $.each(displayStats, function(index, category) {   
+                const stat = record[index];
+                const $statItem = $('<div>').addClass('stat-item');                
+                $statItem.append($('<div>').text(category).addClass('stat-label'));
+                $statItem.append($('<div>').text(stat.value).addClass('stat-value'));
+                $statItem.append($('<div>').text(stat.gameInfo).addClass('stat-value'));
+
+                $statContainer.append($statItem);
+
+            });
         }
 
-        function populateSeasonStats(statData, gameData) {             
-            // Create a map from gameData to easily associate game id's to a year range
-            const yearMap = new Map(gameData.map(item => [item.game_id, getYearFromDate(item.date)]));
+        function populatePlayerSeasonStats(playerStats, playerGames) {             
+            // Create a map from playerGames to easily associate game id's to a year range
+            const yearMap = new Map(playerGames.map(item => [item.game_id, getYearFromDate(item.date)]));
 
-            // Tally the values of fields in players based on game_id values in gameData
-            const seasonData = statData.reduce((acc, curr) => {
+            const seasonData = playerStats.reduce((acc, curr) => {
                 const year = yearMap.get(curr.game_id);
-                acc[year] = acc[year] || { shots: 0, shots_on_goal: 0, goals: 0, assists: 0, groundballs: 0, caused_turnover: 0, turnover: 0, draw_taken: 0, draw_won: 0, draw_control: 0 };
-                ['shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control'].forEach(key => {
+                acc[year] = acc[year] || Object.fromEntries(Object.entries(displayStats).map(([key, value]) => [key, 0]));
+                Object.keys(displayStats).forEach(key => {
                     acc[year][key] += parseInt(curr[key], 10) || 0;
                 });
                 return acc;
@@ -507,34 +534,38 @@
                 sortedData[key] = seasonData[key];
             });
 
+            console.log(seasonData);
+            console.log(sortedData);
+
             //Lets remove previously appedned info
             const $flexContainer = $('.season-stat-container');
-            // Select all season-stat-cols except the original one
-            const $flexItemsToRemove = $flexContainer.find('.season-stat-col:not(:first-child)');
-            // Remove the selected season-stat-cols
-            $flexItemsToRemove.remove();
 
-            //add new html
+            $flexContainer.html('');
+            //Generate index column
+            const flexItem = $("<div>").addClass("season-stat-col");
+            flexItem.append($("<div>").addClass("season-stat-first").text(''));
+            $.each(displayStats, function(index, category) {             
+                flexItem.append($("<div>").addClass("season-stat-row").text(category));
+            });
+            $flexContainer.append(flexItem);
+
+
+            //Genrate season columns 
             $.each(sortedData, function(index, value) {                      
-               const flexItem = $("<div>").addClass("season-stat-col");
-               flexItem.append($("<div>").addClass("season-stat-row").text(index));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.shots));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.shots_on_goal));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.goals));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.assists));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.groundballs));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.caused_turnover));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.turnover));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.draw_taken));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.draw_won));
-               flexItem.append($("<div>").addClass("season-stat-row").text(value.draw_control));
+             const flexItem = $("<div>").addClass("season-stat-col");
+             flexItem.append($("<div>").addClass("season-stat-row").text(index));
+
+             $.each(displayStats, function(index, category) {             
+                flexItem.append($("<div>").addClass("season-stat-row").text(value[index]));
+            });
 
 
              // Append the flex item to the container
-               $flexContainer.append(flexItem);
-           });
+             $flexContainer.append(flexItem);
+         });
 
         }
+
 
         function sumColumns(jsonArray, ...columns) {
             const sums = {};
@@ -572,13 +603,22 @@
         }
 
         $(document).ready(async function() {
+            // setData();
             populatePlayerList();
-            $('#content_box_player_table').show(); 
+            $('#content-box-player-table').show(); 
 
-            $('#go_player_stats').click(function(){
-                $('.content_box').hide();                
-                $('#content_box_player_table').show();                
+            $('#go-player-stats').click(function(){
+                $('.content-box').hide();                
+                $('#content-box-player-table').show();                
             });
+
+            $('#go-records').click(function(){
+                $('.content-box').hide();                
+                $('#content-box-records').show();    
+                populateTeamRecords();            
+            });
+            
+            
         });
     </script>
 </body>
