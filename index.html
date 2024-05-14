@@ -278,13 +278,14 @@
             'shots': 'Shots', 
             'shots_on_goal': 'Shots On Goal', 
             'goals': 'Goals', 
-            'assists': 'Assists', 
+            'assists': 'Assists',
+            'points': 'Points',
             'groundballs': 'Groundballs', 
             'caused_turnover': 'Caused Turnover', 
             // 'turnover': 'Turnover', 
             'draw_taken': 'Draw Taken', 
             'draw_won': 'Draw Won', 
-            'draw_control': 'Draw Control'
+            'draw_control': 'Draw Control'            
         };
 
 
@@ -307,7 +308,15 @@
                 const snapshot = await getDocs(q);
                 console.log('fetchStats');
                 console.log(snapshot.docs.map(doc => doc.data()));    
-                return snapshot.docs.map(doc => doc.data());
+
+                const rawStats = snapshot.docs.map(doc => doc.data());
+
+                rawStats.forEach(player => {
+                    player.points = player.goals + player.assists;
+                });
+
+
+                return rawStats;
             } catch (error) {
                 console.error('Error fetching names:', error);
             }
@@ -317,6 +326,7 @@
             try {
                 const q = query(collection(db, 'game'));
                 const snapshot = await getDocs(q);
+
                 console.log('fetchGames');
                 console.log(snapshot.docs.map(doc => doc.data()));
                 return snapshot.docs.map(doc => doc.data());
@@ -325,80 +335,151 @@
             }
         }
 
-        function populateTeamRecords() {
+        function populateTeamCareerRecords() {
+            // Group by player_id and sum the statistics
+            const groupedSums = {};
+
+            statData.forEach(player => {
+                if (!groupedSums[player.player_id]) {
+                    // Initialize the object for each player_id
+                    groupedSums[player.player_id] = {
+                        player_id: player.player_id
+                    };
+                     Object.keys(displayStats).forEach(stat => {
+                        groupedSums[player.player_id][stat] = 0;
+                    });
+                }
+
+                // Sum the statistics for each player_id
+                Object.keys(displayStats).forEach(stat => {
+                    const value = isNaN(player[stat]) ? 0 : Number(player[stat]);
+                    groupedSums[player.player_id][stat] += value;
+                });
+            });
+
+            // Convert groupedSums to an array for easier manipulation
+            const groupedSumsArray = Object.values(groupedSums);
+
+            // Create an object to store the top ten records for each stat
+            const topTenRecords = {};
+
+            const topTenRecordsx = getTopTenRecordsByField(groupedSumsArray, displayStats);
+console.log("GGG");
+            console.log(topTenRecordsx);
+        }
+
+        function populateTeamGameRecords() {
             try {
                 const topTenRecords = {};
 
-                 // Initialize topTenRecords object with empty arrays for each key
-                Object.keys(statData[0]).forEach(key => {
-                    if (key !== 'game_id' && key !== 'player_id') {
-                        topTenRecords[key] = [];
-                    }
-                });
+                const topTenRecordsX = getTopTenRecordsByField(statData, displayStats);
+                
 
-                // Iterate through each stat object
-                statData.forEach(obj => {
-                // Iterate through each key in the object
-                    Object.keys(obj).forEach(key => {
-                        // Skip if key is 'game_id' or 'player_id'
-                        if (key === 'game_id' || key === 'player_id') {
-                            return;
-                        }
-                        // Skip if value is empty or not a number
-                        if (!obj[key] || isNaN(obj[key])) {
-                            return;
-                        }
-                        // Find the corresponding player object
-                        const player = playerData.find(player => player.player_id === obj.player_id);
-                        const playerName = player ? `${player.first_name} ${player.last_name}` : '';
+                //  // Initialize topTenRecords object with empty arrays for each key
+                // Object.keys(statData[0]).forEach(key => {
+                //     if (key !== 'game_id' && key !== 'player_id') {
+                //         topTenRecords[key] = [];
+                //     }
+                // });
 
-                        // Update top ten records for the current key
-                        updateTopTenRecords(topTenRecords[key], obj[key], playerName);
-                    });
-                });
+                // // Iterate through each stat object
+                // statData.forEach(obj => {
+                // // Iterate through each key in the object
+                //     Object.keys(obj).forEach(key => {
+                //         // Skip if key is 'game_id' or 'player_id'
+                //         if (key === 'game_id' || key === 'player_id') {
+                //             return;
+                //         }
+                //         // Skip if value is empty or not a number
+                //         if (!obj[key] || isNaN(obj[key])) {
+                //             return;
+                //         }
+                //         // Find the corresponding player object
+                //         const player = playerData.find(player => player.player_id === obj.player_id);
+                //         const playerName = player ? `${player.first_name} ${player.last_name}` : '';
 
-
+                //         // Update top ten records for the current key
+                //         updateTopTenRecords(topTenRecords[key], obj[key], playerName);
+                //     });
+                // });
+                console.log(topTenRecords);
+                console.log(topTenRecordsX);
                 //HTML GEN
                 const $recordContainer = $('.record-container');
                 $recordContainer.html('');
 
-                $.each(displayStats, function(index, category) {   
+                // $.each(displayStats, function(index, category) {   
+                //     const $recordBox = $('<div>').addClass('record-box');                
+                //     $recordBox.append($('<div>').text(category).addClass('record-title'));
+
+                //     $.each(topTenRecords[index], function(index, record) {       
+                //         let $recordItem = $('<div>').addClass('record-item');                 
+                //         $recordItem.append($('<span>').text(record.playerInfo).addClass('record-name'));
+                //         $recordItem.append($('<span>').text(record.value).addClass('record-value'));                      
+                //         $recordBox.append($recordItem);
+                //     });                    
+
+                //     $recordContainer.append($recordBox);
+                // });
+
+                $.each(displayStats, function(index, category) { 
+                console.log(category);  
                     const $recordBox = $('<div>').addClass('record-box');                
                     $recordBox.append($('<div>').text(category).addClass('record-title'));
 
-                    $.each(topTenRecords[index], function(index, record) {       
+                    $.each(topTenRecordsX[index], function(index, record) {    
+                    console.log(record);
+                    console.log(index); 
+                    console.log(category);         
                         let $recordItem = $('<div>').addClass('record-item');                 
-                        $recordItem.append($('<span>').text(record.playerInfo).addClass('record-name'));
-                        $recordItem.append($('<span>').text(record.value).addClass('record-value'));                      
+                        $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
+                        $recordItem.append($('<span>').text(record[category]).addClass('record-value'));                      
                         $recordBox.append($recordItem);
                     });                    
 
                     $recordContainer.append($recordBox);
                 });
-
-                $contentBox.append($recordContainer); 
-
             } catch (error) {
                 console.error('Error populating team records:', error);
             }
         }
 
-        function updateTopTenRecords(records, value, playerName) {
-            // If records array is not full yet, add the value directly
-            if (records.length < 5) {
-                records.push({ value: value, playerInfo: playerName });
-                // Sort records array in descending order of values
-                records.sort((a, b) => b.value - a.value);
-            } else {
-                // If records array is full, compare the value with the lowest value in the array
-                const lowestValue = records[records.length - 1].value;
-                if (value > lowestValue) {
-                    // Replace the lowest value with the new value and sort the array again
-                    records.pop();
-                    records.push({ value: value, playerInfo: playerName });
-                    records.sort((a, b) => b.value - a.value);
-                }
-            }
+        // function updateTopTenRecords(records, value, playerName) {
+        //     // If records array is not full yet, add the value directly
+        //     if (records.length < 5) {
+        //         records.push({ value: value, playerInfo: playerName });
+        //         // Sort records array in descending order of values
+        //         records.sort((a, b) => b.value - a.value);
+        //     } else {
+        //         // If records array is full, compare the value with the lowest value in the array
+        //         const lowestValue = records[records.length - 1].value;
+        //         if (value > lowestValue) {
+        //             // Replace the lowest value with the new value and sort the array again
+        //             records.pop();
+        //             records.push({ value: value, playerInfo: playerName });
+        //             records.sort((a, b) => b.value - a.value);
+        //         }
+        //     }
+        // }
+
+        function getPlayerInfo(id) {
+            const player = playerData.find(player => player.player_id === id);
+            return player ? `${player.first_name} ${player.last_name}` : '';
+        }
+
+        function getTopTenRecordsByField(statData, displayStats) {
+            const topTenRecords = {};
+
+            // Iterate through each field in displayStats
+            Object.keys(displayStats).forEach(stat => {
+                // Sort the array by the current field in descending order
+                const sortedArray = statData.slice().sort((a, b) => b[stat] - a[stat]);
+
+                // Take the top ten records for the current field
+                topTenRecords[stat] = sortedArray.slice(0, 5);
+            });
+
+            return topTenRecords;
         }
 
         function populatePlayerList() {  
@@ -451,7 +532,7 @@
         }
 
         function populatePlayerCareerStats(playerStats) {
-            const stats = sumColumns(playerStats, 'shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control');
+            const stats = sumColumns(playerStats);
 
             //HTML GEN
             const $statContainer = $('#cRecords');
@@ -534,9 +615,6 @@
                 sortedData[key] = seasonData[key];
             });
 
-            console.log(seasonData);
-            console.log(sortedData);
-
             //Lets remove previously appedned info
             const $flexContainer = $('.season-stat-container');
 
@@ -567,9 +645,9 @@
         }
 
 
-        function sumColumns(jsonArray, ...columns) {
+        function sumColumns(jsonArray) {
             const sums = {};
-            columns.forEach(column => {
+            Object.keys(displayStats).forEach(column => {
                 sums[column] = jsonArray.reduce((acc, obj) => {
                     // Convert string to number if possible, otherwise treat as 0
                     const value = isNaN(obj[column]) ? 0 : Number(obj[column]);
@@ -615,7 +693,8 @@
             $('#go-records').click(function(){
                 $('.content-box').hide();                
                 $('#content-box-records').show();    
-                populateTeamRecords();            
+                populateTeamGameRecords();    
+                populateTeamCareerRecords();        
             });
             
             
