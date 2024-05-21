@@ -93,54 +93,53 @@
         }
 
         .record-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    margin-top: 15px;
-    max-width: 800px;
-}
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 15px;
+            max-width: 800px;
+        }
 
-.record-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 15px;
-    max-width: 200px;
-    min-width: 180px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    overflow: hidden; /* Add overflow to prevent border overflow */
-}
+        .record-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 15px;
+            max-width: 200px;
+            min-width: 180px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden; /* Add overflow to prevent border overflow */
+        }
 
-.record-title {
-    width: 100%;
-    font-weight: bold;
-    text-align: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #ccc;
-    background-color: #f2f2f2;
-    white-space: nowrap; /* Prevent title text from wrapping */
-    overflow: hidden; /* Hide any overflow text */
-    text-overflow: ellipsis; /* Show ellipsis for overflow text */
-}
+        .record-title {
+            width: 100%;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+            background-color: #f2f2f2;
+            white-space: nowrap; /* Prevent title text from wrapping */
+            overflow: hidden; /* Hide any overflow text */
+            text-overflow: ellipsis; /* Show ellipsis for overflow text */
+        }
 
-.record-item {
-    width: 100%;
-    text-align: center;
-    padding: 15px 0px;
-    border-top: 1px solid #ccc;
-    display: flex;
-    flex-direction: column;
-}
+        .record-item {
+            width: 100%;
+            text-align: center;
+            padding: 15px 0px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+        }
 
-.record-name {
-    font-weight: bold;
-}
+        .record-name {
+            font-weight: bold;
+        }
 
-.record-value {
-    margin-top: 5px;
-}
-
+        .record-value {
+            margin-top: 5px;
+        }
 
         .season-stat-container {
             display: flex;
@@ -151,8 +150,7 @@
 
         .season-stat-col {
             flex: 0 0 20%; /* 25% width for each column */
-            max-width: 160px;            
-
+            max-width: 160px;
         }
 
         .season-stat-row {
@@ -169,19 +167,19 @@
         }
 
         .season-stat-row:first-child {
-           font-weight: bold;
-       }
+         font-weight: bold;
+     }
 
-       .season-stat-col:first-child {
+     .season-stat-col:first-child {
         font-weight: bold;
-        }
+    }
 
-        .season-stat-first {
-            flex: 0 0 100%; /* 25% width for each column */
-            height: 50px; /* Set height as per your requirement */
-            line-height: 50px;
-            text-align: center;
-        }        
+    .season-stat-first {
+        flex: 0 0 100%; /* 25% width for each column */
+        height: 50px; /* Set height as per your requirement */
+        line-height: 50px;
+        text-align: center;
+    }        
 </style>
 </head>
 <body>
@@ -198,26 +196,33 @@
 
         </div> 
 
-        <div class='content-box' id='content-box-records'>            
-            <div class="record-container">                
-            </div>        
+        <div class='content-box' id='content-box-records'>  
+            <H3>Game Records</H3>          
+            <div class="record-container" id="gRecords">                
+            </div>    
+
+            <H3>Season Records</H3>          
+            <div class="record-container" id="sRecords">                
+            </div>    
+
+            <H3>Career Records</H3>          
+            <div class="record-container" id="cRecords">                
+            </div>     
         </div> 
 
         <div class='content-box' id='content-box-player-stats'>
             <H2 id='player-stat-name' >Player Name</H2>
 
-
             <H3>Career Stats</H3>
-            <div class="stat-container" id="cRecords">
+            <div class="stat-container" id="cStats">
             </div>
 
-
             <H3>Season Stats</H3>
-            <div class="season-stat-container">
+            <div class="season-stat-container" id="sStats">
             </div>
 
             <H3>Personal Records</H3>
-            <div class="stat-container" id="pRecords">
+            <div class="stat-container" id="pStats">
 
             </div>
         </div> 
@@ -276,14 +281,14 @@
 
         const displayStats = {
             'shots': 'Shots', 
-            'shots_on_goal': 'Shots On Goal', 
+            // 'shots_on_goal': 'Shots On Goal', 
             'goals': 'Goals', 
             'assists': 'Assists',
             'points': 'Points',
             'groundballs': 'Groundballs', 
             'caused_turnover': 'Caused Turnover', 
             // 'turnover': 'Turnover', 
-            'draw_taken': 'Draw Taken', 
+            // 'draw_taken': 'Draw Taken', 
             'draw_won': 'Draw Won', 
             'draw_control': 'Draw Control'            
         };
@@ -311,8 +316,10 @@
 
                 const rawStats = snapshot.docs.map(doc => doc.data());
 
+                //Add advanced stats
                 rawStats.forEach(player => {
                     player.points = player.goals + player.assists;
+                    player.game_score = ((player.shots - player.goals) * -0.4) + (player.goals * 0.7) + (player.assist * 0.7) + (player.groundballs * 0.4) +  (player.caused_turnover * 0.5) +  (player.turnover * -0.4);
                 });
 
 
@@ -335,6 +342,39 @@
             }
         }
 
+        function populateTeamSeasonRecords() {
+            const yearMap = new Map(gameData.map(item => [item.game_id, getYearFromDate(item.date)]));
+            const groupedData = {};
+
+            statData.forEach(stat => {
+                const year = yearMap.get(stat.game_id);
+                if (year) {
+                    const key = `${stat.player_id}-${year}`;
+                    if (!groupedData[key]) {
+                        groupedData[key] = {
+                            player_id: stat.player_id,
+                            year: year,
+                        };
+                        Object.keys(displayStats).forEach(statKey => {
+                            groupedData[key][statKey] = 0;
+                        });
+                    }
+
+                    Object.keys(displayStats).forEach(statKey => {
+                        const value = isNaN(stat[statKey]) ? 0 : Number(stat[statKey]);
+                        groupedData[key][statKey] += value;
+                    });
+                }
+            });
+
+            const topTenRecords = getTopTenRecordsByField(Object.values(groupedData), displayStats);
+            console.log(topTenRecords);
+
+            //HTML GEN
+            recordHTMLgen('#sRecords', topTenRecords);
+        }
+
+
         function populateTeamCareerRecords() {
             // Group by player_id and sum the statistics
             const groupedSums = {};
@@ -345,7 +385,7 @@
                     groupedSums[player.player_id] = {
                         player_id: player.player_id
                     };
-                     Object.keys(displayStats).forEach(stat => {
+                    Object.keys(displayStats).forEach(stat => {
                         groupedSums[player.player_id][stat] = 0;
                     });
                 }
@@ -361,106 +401,46 @@
             const groupedSumsArray = Object.values(groupedSums);
 
             // Create an object to store the top ten records for each stat
-            const topTenRecords = {};
+            const topTenRecords = getTopTenRecordsByField(groupedSumsArray, displayStats);
 
-            const topTenRecordsx = getTopTenRecordsByField(groupedSumsArray, displayStats);
-console.log("GGG");
-            console.log(topTenRecordsx);
+            console.log(topTenRecords);
+
+            //HTML GEN
+            recordHTMLgen('#cRecords', topTenRecords);
         }
 
         function populateTeamGameRecords() {
             try {
-                const topTenRecords = {};
+                const topTenRecords = getTopTenRecordsByField(statData, displayStats);
 
-                const topTenRecordsX = getTopTenRecordsByField(statData, displayStats);
-                
-
-                //  // Initialize topTenRecords object with empty arrays for each key
-                // Object.keys(statData[0]).forEach(key => {
-                //     if (key !== 'game_id' && key !== 'player_id') {
-                //         topTenRecords[key] = [];
-                //     }
-                // });
-
-                // // Iterate through each stat object
-                // statData.forEach(obj => {
-                // // Iterate through each key in the object
-                //     Object.keys(obj).forEach(key => {
-                //         // Skip if key is 'game_id' or 'player_id'
-                //         if (key === 'game_id' || key === 'player_id') {
-                //             return;
-                //         }
-                //         // Skip if value is empty or not a number
-                //         if (!obj[key] || isNaN(obj[key])) {
-                //             return;
-                //         }
-                //         // Find the corresponding player object
-                //         const player = playerData.find(player => player.player_id === obj.player_id);
-                //         const playerName = player ? `${player.first_name} ${player.last_name}` : '';
-
-                //         // Update top ten records for the current key
-                //         updateTopTenRecords(topTenRecords[key], obj[key], playerName);
-                //     });
-                // });
-                console.log(topTenRecords);
-                console.log(topTenRecordsX);
                 //HTML GEN
-                const $recordContainer = $('.record-container');
-                $recordContainer.html('');
-
-                // $.each(displayStats, function(index, category) {   
-                //     const $recordBox = $('<div>').addClass('record-box');                
-                //     $recordBox.append($('<div>').text(category).addClass('record-title'));
-
-                //     $.each(topTenRecords[index], function(index, record) {       
-                //         let $recordItem = $('<div>').addClass('record-item');                 
-                //         $recordItem.append($('<span>').text(record.playerInfo).addClass('record-name'));
-                //         $recordItem.append($('<span>').text(record.value).addClass('record-value'));                      
-                //         $recordBox.append($recordItem);
-                //     });                    
-
-                //     $recordContainer.append($recordBox);
-                // });
-
-                $.each(displayStats, function(index, category) { 
-                console.log(category);  
-                    const $recordBox = $('<div>').addClass('record-box');                
-                    $recordBox.append($('<div>').text(category).addClass('record-title'));
-
-                    $.each(topTenRecordsX[index], function(index, record) {    
-                    console.log(record);
-                    console.log(index); 
-                    console.log(category);         
-                        let $recordItem = $('<div>').addClass('record-item');                 
-                        $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
-                        $recordItem.append($('<span>').text(record[category]).addClass('record-value'));                      
-                        $recordBox.append($recordItem);
-                    });                    
-
-                    $recordContainer.append($recordBox);
-                });
+                const $recordContainer = $('#gRecords');
+                recordHTMLgen('#gRecords', topTenRecords);
             } catch (error) {
                 console.error('Error populating team records:', error);
             }
         }
 
-        // function updateTopTenRecords(records, value, playerName) {
-        //     // If records array is not full yet, add the value directly
-        //     if (records.length < 5) {
-        //         records.push({ value: value, playerInfo: playerName });
-        //         // Sort records array in descending order of values
-        //         records.sort((a, b) => b.value - a.value);
-        //     } else {
-        //         // If records array is full, compare the value with the lowest value in the array
-        //         const lowestValue = records[records.length - 1].value;
-        //         if (value > lowestValue) {
-        //             // Replace the lowest value with the new value and sort the array again
-        //             records.pop();
-        //             records.push({ value: value, playerInfo: playerName });
-        //             records.sort((a, b) => b.value - a.value);
-        //         }
-        //     }
-        // }
+        function recordHTMLgen(container, topTenRecords) {
+            const $recordContainer = $(container);
+            $recordContainer.html('');
+
+            $.each(displayStats, function(index, category) { 
+                const $recordBox = $('<div>').addClass('record-box');                
+                $recordBox.append($('<div>').text(category).addClass('record-title'));
+                const categoryName = index; 
+
+                $.each(topTenRecords[index], function(index, record) {   
+                    let $recordItem = $('<div>').addClass('record-item');                 
+                    $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
+                    $recordItem.append($('<span>').text(record[categoryName]).addClass('record-value'));                      
+                    $recordBox.append($recordItem);
+                });                    
+
+                $recordContainer.append($recordBox);
+            });
+
+        }
 
         function getPlayerInfo(id) {
             const player = playerData.find(player => player.player_id === id);
@@ -509,9 +489,9 @@ console.log("GGG");
 
                 // Get player stats and gamedata
                 let playerStats = statData.filter(obj => obj["player_id"] === data.player_id).map(obj => ({...obj}));
-  
+
                 let gameIds = playerStats.map(obj => obj['game_id']);
- 
+
                 let playerGames = gameData.filter(obj => gameIds.includes(obj.game_id));
 
                 //Show career totals
@@ -535,7 +515,7 @@ console.log("GGG");
             const stats = sumColumns(playerStats);
 
             //HTML GEN
-            const $statContainer = $('#cRecords');
+            const $statContainer = $('#cStats');
             $statContainer.html('');
             $.each(displayStats, function(index, category) {               
                 const $statItem = $('<div>').addClass('stat-item');                
@@ -578,9 +558,8 @@ console.log("GGG");
                 });
             }); 
 
-
             //HTML GEN
-            const $statContainer = $('#pRecords');
+            const $statContainer = $('#pStats');
 
             $statContainer.html('');
             $.each(displayStats, function(index, category) {   
@@ -616,9 +595,9 @@ console.log("GGG");
             });
 
             //Lets remove previously appedned info
-            const $flexContainer = $('.season-stat-container');
-
+            const $flexContainer = $('#sStats');
             $flexContainer.html('');
+
             //Generate index column
             const flexItem = $("<div>").addClass("season-stat-col");
             flexItem.append($("<div>").addClass("season-stat-first").text(''));
@@ -630,20 +609,19 @@ console.log("GGG");
 
             //Genrate season columns 
             $.each(sortedData, function(index, value) {                      
-             const flexItem = $("<div>").addClass("season-stat-col");
-             flexItem.append($("<div>").addClass("season-stat-row").text(index));
+               const flexItem = $("<div>").addClass("season-stat-col");
+               flexItem.append($("<div>").addClass("season-stat-row").text(index));
 
-             $.each(displayStats, function(index, category) {             
+               $.each(displayStats, function(index, category) {             
                 flexItem.append($("<div>").addClass("season-stat-row").text(value[index]));
             });
 
 
              // Append the flex item to the container
-             $flexContainer.append(flexItem);
-         });
+               $flexContainer.append(flexItem);
+           });
 
         }
-
 
         function sumColumns(jsonArray) {
             const sums = {};
@@ -675,7 +653,6 @@ console.log("GGG");
             return "Date is not within any of the specified ranges";
         }
 
-
         async function refresh(tableId) {
             $('#' + tableId).DataTable().destroy();
         }
@@ -694,10 +671,9 @@ console.log("GGG");
                 $('.content-box').hide();                
                 $('#content-box-records').show();    
                 populateTeamGameRecords();    
-                populateTeamCareerRecords();        
+                populateTeamCareerRecords();   
+                populateTeamSeasonRecords();     
             });
-            
-            
         });
     </script>
 </body>
