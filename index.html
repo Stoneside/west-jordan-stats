@@ -372,6 +372,7 @@
         });
 
         const topTenRecords = getTopTenRecordsByField(Object.values(groupedData), displayStats);
+        console.log("Season Records");
         console.log(topTenRecords);
 
         //HTML GEN
@@ -407,8 +408,6 @@
         // Create an object to store the top ten records for each stat
         const topTenRecords = getTopTenRecordsByField(groupedSumsArray, displayStats);
 
-        console.log(topTenRecords);
-
         //HTML GEN
         recordHTMLgen('#cRecords', topTenRecords);
     }
@@ -440,6 +439,8 @@
                 let $recordItem = $('<div>').addClass('record-item');
                 $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
                 $recordItem.append($('<span>').text(record[stat]).addClass('record-value'));
+                if(record.year)
+                    $recordItem.append($('<span>').text(record.year).addClass('record-value'));
                 $recordBox.append($recordItem);
             });
 
