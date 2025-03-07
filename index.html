@@ -13,22 +13,18 @@
             border-collapse: collapse;
             width: 100%;
         }
-
         th, td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
         }
-
         th {
             background-color: #f2f2f2;
             cursor: pointer;
         }
-
         th:hover {
             background-color: #ddd;
         }
-
         h3 {
             margin-top: 30px;
             max-width: 800px;
@@ -47,7 +43,7 @@
             margin-top: 15px;
         }
 
-        #player-table-filter {
+        .dataTables_filter {
             margin-bottom: 5px;
         }
 
@@ -147,541 +143,479 @@
 
         .season-stat-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: row; /* Arrange columns in a row */
+            flex-wrap: nowrap; /* Prevent wrapping */
+            justify-content: center; /* Center the content */
             max-width: 800px;
+            width: 100%;
+
         }
 
         .season-stat-col {
-            flex: 0 0 20%; /* 25% width for each column */
-            max-width: 160px;
+              border: 1px solid #ccc;
+            box-sizing: border-box;
+
+        }
+
+        .season-stat-col:first-child .season-stat-row{
+            justify-content: left;
         }
 
         .season-stat-row {
-            flex: 0 0 100%; /* 25% width for each column */
-            height: 50px; /* Set height as per your requirement */
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            text-align: center;
-            line-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            min-height: 40px;
         }
 
+        /* Alternate row background for readability */
         .season-stat-row:nth-child(odd) {
-            background-color: #f2f2f2; /* Light gray background color */
+            background-color: #f2f2f2;
         }
 
+        /* Bold headers */
         .season-stat-row:first-child {
             font-weight: bold;
         }
-
-        .season-stat-col:first-child {
-            font-weight: bold;
-        }
-
-        .season-stat-first {
-            flex: 0 0 100%; /* 25% width for each column */
-            height: 50px; /* Set height as per your requirement */
-            line-height: 50px;
-            text-align: center;
-        }
-    </style>
+</style>
 </head>
 <body>
-<div class='header'>
-    <H1>Stat Tracker</H1>
-    <ul id="horizontal-menu">
-        <li id='go-player-stats'>Player Stats</li>
-        <li id='go-game-stats'>Game Stats</li>
-        <li id='go-records'>Records</li>
-    </ul>
-</div>
-<div class='content'>
-    <div class='content-box' id='content-box-menu'>
+    <div class='header' >
+        <H1>Stat Tracker</H1>
+        <ul id="horizontal-menu">
+            <li id='go-player-stats'>Player Stats</li>
+            <li id='go-game-stats'>Game Stats</li>
+            <li id='go-records'>Records</li>
+        </ul>
+    </div>  
+    <div class='content' >
+        <div class='content-box' id='content-box-menu'>
 
-    </div>
+        </div> 
 
-    <div class='content-box' id='content-box-records'>
-        <H3>Game Records</H3>
-        <div class="record-container" id="gRecords">
-        </div>
+        <div class='content-box' id='content-box-records'>            
+            <div class="record-container">                
+            </div>        
+        </div> 
 
-        <H3>Season Records</H3>
-        <div class="record-container" id="sRecords">
-        </div>
-
-        <H3>Career Records</H3>
-        <div class="record-container" id="cRecords">
-        </div>
-    </div>
-
-    <div class='content-box' id='content-box-player-stats'>
-        <H2 id='player-stat-name'>Player Name</H2>
-
-        <H3>Career Stats</H3>
-        <div class="stat-container" id="cStats">
-        </div>
-
-        <H3>Season Stats</H3>
-        <div class="season-stat-container" id="sStats">
-        </div>
-
-        <H3>Personal Records</H3>
-        <div class="stat-container" id="pStats">
-
-        </div>
-    </div>
-
-    <div class='content-box' id='content-box-player-table'>
-        <table id='player-table' class='display'>
-            <thead>
-            <tr>
-                <th>First</th>
-                <th>Last</th>
-                <th>ID</th>
-            </tr>
-            </thead>
-            <tfoot>
-            <tr>
-                <th>First</th>
-                <th>Last</th>
-                <th>ID</th>
-            </tr>
-            </tfoot>
-        </table>
-    </div>
-</div>
-
-<script type='module'>
-    import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js';
-    import {
-        getFirestore,
-        collection,
-        query,
-        where,
-        getDocs
-    } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js';
-
-    // Initialize Firebase
-    const firebaseConfig = {
-        apiKey: 'AIzaSyCySygEpn3Ka4dL-Wc51K5mrx83HS2Z6Lc',
-        authDomain: 'west-jordan-stats.firebaseapp.com',
-        projectId: 'west-jordan-stats',
-        storageBucket: 'west-jordan-stats.appspot.com',
-        messagingSenderId: '81720331896',
-        appId: '1:81720331896:web:6992f3fc5c65b5100ee78d',
-        measurementId: 'G-482WB9KEXS'
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const CACHE_KEY = 'stat_data'; // Define a cache key
-    const {playerData, statData, gameData} = await fetchAllData();
-
-    // DataTable options
-    const dataTableOptions = {
-        'paging': false,
-        'autoWidth': false,
-        'columnDefs': [{type: 'natural', targets: 2}],
-        'searching': false,
-        'orderCellsTop': true,
-        'fixedHeader': true,
-        'responsive': true,
-    };
-
-    const displayStats = {
-        'shots': 'Shots',
-        // 'shots_on_goal': 'Shots On Goal', 
-        'goals': 'Goals',
-        'assists': 'Assists',
-        'points': 'Points',
-        'groundballs': 'Groundballs',
-        'caused_turnover': 'Caused Turnover',
-        // 'turnover': 'Turnover', 
-        // 'draw_taken': 'Draw Taken', 
-        'draw_won': 'Draw Won',
-        'draw_control': 'Draw Control'
-    };
+        <div class='content-box' id='content-box-player-stats'>
+            <H2 id='player-stat-name' >Player Name</H2>
 
 
-    async function fetchAllData() {
-        try {
-            // Check for cached data first
-            const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY));
+            <H3>Career Stats</H3>
+            <div class="stat-container" id="cRecords">
+            </div>
 
-            if (cachedData && isDataFresh(cachedData)) {
-                console.log('Using cached data');
-                const {players, stats, games} = cachedData;
-                return {playerData: players, statData: stats, gameData: games};
+
+            <H3>Season Stats</H3>
+            <div class="season-stat-container">
+            </div>
+
+            <H3>Personal Records</H3>
+            <div class="stat-container" id="pRecords">
+
+            </div>
+        </div> 
+
+        <div class='content-box' id='content-box-player-table'>
+            <table id='player-table' class='display'>
+                <thead>
+                    <tr>
+                        <th>First</th>
+                        <th>Last</th> 
+                        <th>ID</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>First</th>
+                        <th>Last</th>
+                        <th>ID</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div> 
+    </div>  
+
+    <script type='module'>
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.10.0/firebase-firestore.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: 'AIzaSyCySygEpn3Ka4dL-Wc51K5mrx83HS2Z6Lc',
+            authDomain: 'west-jordan-stats.firebaseapp.com',
+            projectId: 'west-jordan-stats',
+            storageBucket: 'west-jordan-stats.appspot.com',
+            messagingSenderId: '81720331896',
+            appId: '1:81720331896:web:6992f3fc5c65b5100ee78d',
+            measurementId: 'G-482WB9KEXS'
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const playerData = await fetchPlayers();
+        const statData = await  fetchStats();
+        const gameData = await fetchGames();
+
+        // DataTable options
+        const dataTableOptions = {
+            'paging': false,
+            'autoWidth': false,
+            'columnDefs': [{ type: 'natural', targets: 2 }],
+            'searching': false,
+            'orderCellsTop': true,
+            'fixedHeader': true,
+            'responsive': true,
+        };
+
+        const displayStats = {
+            'shots': 'Shots', 
+            'shots_on_goal': 'Shots On Goal', 
+            'goals': 'Goals', 
+            'assists': 'Assists', 
+            'groundballs': 'Groundballs', 
+            'caused_turnover': 'Caused Turnover', 
+            // 'turnover': 'Turnover', 
+            'draw_attempt': 'Draw Taken', 
+            'draw_won': 'Draw Won', 
+            'draw_control': 'Draw Control'
+        };
+
+
+        //----------Datebase Calls----------//
+        async function fetchPlayers() {
+            try {
+                const q = query(collection(db, 'player'));
+                const snapshot = await getDocs(q);
+                console.log('fetchPlayers');
+                console.log(snapshot.docs.map(doc => doc.data()));
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching names:', error);
             }
+        }
 
-            const collections = ['player', 'stat', 'game'];
-            const snapshots = await Promise.all(collections.map(col => getDocs(query(collection(db, col)))));
+        async function fetchStats() {
+            try {
+                const q = query(collection(db, 'stat'));
+                const snapshot = await getDocs(q);
+                console.log('fetchStats');
+                console.log(snapshot.docs.map(doc => doc.data()));    
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching names:', error);
+            }
+        }
 
-            const data = snapshots.reduce((acc, snapshot, index) => {
-                acc[collections[index]] = snapshot.docs.map(doc => doc.data());
+        async function fetchGames() {
+            try {
+                const q = query(collection(db, 'game'));
+                const snapshot = await getDocs(q);
+                console.log('fetchGames');
+                console.log(snapshot.docs.map(doc => doc.data()));
+                return snapshot.docs.map(doc => doc.data());
+            } catch (error) {
+                console.error('Error fetching names:', error);
+            }
+        }
+
+        function populateTeamRecords() {
+            try {
+                const topTenRecords = {};
+
+                 // Initialize topTenRecords object with empty arrays for each key
+                Object.keys(statData[0]).forEach(key => {
+                    if (key !== 'game_id' && key !== 'player_id') {
+                        topTenRecords[key] = [];
+                    }
+                });
+
+                // Iterate through each stat object
+                statData.forEach(obj => {
+                // Iterate through each key in the object
+                    Object.keys(obj).forEach(key => {
+                        // Skip if key is 'game_id' or 'player_id'
+                        if (key === 'game_id' || key === 'player_id') {
+                            return;
+                        }
+                        // Skip if value is empty or not a number
+                        if (!obj[key] || isNaN(obj[key])) {
+                            return;
+                        }
+                        // Find the corresponding player object
+                        const player = playerData.find(player => player.player_id === obj.player_id);
+                        const playerName = player ? `${player.first_name} ${player.last_name}` : '';
+
+                        // Update top ten records for the current key
+                        updateTopTenRecords(topTenRecords[key], obj[key], playerName);
+                    });
+                });
+
+
+                //HTML GEN
+                const $recordContainer = $('.record-container');
+                $recordContainer.html('');
+
+                $.each(displayStats, function(index, category) {   
+                    const $recordBox = $('<div>').addClass('record-box');                
+                    $recordBox.append($('<div>').text(category).addClass('record-title'));
+
+                    $.each(topTenRecords[index], function(index, record) {       
+                        let $recordItem = $('<div>').addClass('record-item');                 
+                        $recordItem.append($('<span>').text(record.playerInfo).addClass('record-name'));
+                        $recordItem.append($('<span>').text(record.value).addClass('record-value'));                      
+                        $recordBox.append($recordItem);
+                    });                    
+
+                    $recordContainer.append($recordBox);
+                });
+
+                $contentBox.append($recordContainer); 
+
+            } catch (error) {
+                console.error('Error populating team records:', error);
+            }
+        }
+
+        function updateTopTenRecords(records, value, playerName) {
+            // If records array is not full yet, add the value directly
+            if (records.length < 5) {
+                records.push({ value: value, playerInfo: playerName });
+                // Sort records array in descending order of values
+                records.sort((a, b) => b.value - a.value);
+            } else {
+                // If records array is full, compare the value with the lowest value in the array
+                const lowestValue = records[records.length - 1].value;
+                if (value > lowestValue) {
+                    // Replace the lowest value with the new value and sort the array again
+                    records.pop();
+                    records.push({ value: value, playerInfo: playerName });
+                    records.sort((a, b) => b.value - a.value);
+                }
+            }
+        }
+
+        function populatePlayerList() {  
+            $('#player-table').DataTable({
+                ...dataTableOptions,
+                'data': playerData,               
+                'order': [[ 2, 'desc' ]],
+                'columns': [
+                    { 'data': 'first_name'},  
+                    { 'data': 'last_name'}, 
+                    { 'data': 'player_id' },   
+                    ],
+                searching: true,
+                initComplete: function(settings, json){
+                    $('#player-table tbody tr').on('click', function(){
+                        let data = $('#player-table').DataTable().row(this).data();
+                        populatePlayerStats(data);                                
+                    });
+                }
+            });
+        }
+
+        function populatePlayerStats(data) {
+            try {
+                //update player name
+                $('#player-stat-name').html(data.first_name + ' ' + data.last_name) ;
+
+                // Get player stats and gamedata
+                let playerStats = statData.filter(obj => obj["player_id"] === data.player_id).map(obj => ({...obj}));
+  
+                let gameIds = playerStats.map(obj => obj['game_id']);
+ 
+                let playerGames = gameData.filter(obj => gameIds.includes(obj.game_id));
+
+                //Show career totals
+                populatePlayerCareerStats(playerStats);
+
+                // Begin creating an overview of the seasons they played and the stat totlas for each season
+                populatePlayerSeasonStats(playerStats, playerGames);
+
+                //Now we find their personal best for every stat and the game they accomplished it in          
+                populatePlayerRecordStats(playerStats, playerGames);
+
+                //Show our work
+                $('#content-box-player-table').hide();
+                $('#content-box-player-stats').show();
+            } catch (error) {
+                console.error('Error populating player stats:', error);
+            }
+        }
+
+        function populatePlayerCareerStats(playerStats) {
+            const stats = sumColumns(playerStats, 'shots', 'shots_on_goal', 'goals', 'assists', 'groundballs', 'caused_turnover', 'turnover', 'draw_taken', 'draw_won', 'draw_control');
+
+            //HTML GEN
+            const $statContainer = $('#cRecords');
+            $statContainer.html('');
+            $.each(displayStats, function(index, category) {               
+                const $statItem = $('<div>').addClass('stat-item');                
+                $statItem.append($('<div>').text(category).addClass('stat-label'));
+                $statItem.append($('<div>').text(stats[index]).addClass('stat-value'));
+
+                $statContainer.append($statItem);
+
+            });
+        }
+
+        function populatePlayerRecordStats(playerStats, playerGames) {          
+            const record = {};
+
+            // Iterate through each object in the statData array
+            playerStats.forEach(obj => {
+                // Iterate through each key (stat) in the object
+                Object.keys(obj).forEach(key => {
+                    // Skip if key is 'game_id' or 'player_id'
+                    if (key === 'game_id' || key === 'player_id') {
+                        return;
+                    }                    
+                    // Check if the value is empty or not a number
+                    if (!obj[key] || isNaN(obj[key])) {
+                        // If the value is empty, set it to 0
+                        obj[key] = 0;
+                    }
+                    // Update highest value and corresponding game info if current value is higher
+                    if (!record[key] || obj[key] > record[key].value) {
+                        // Find the corresponding game object based on game_id
+                        const gameObj = playerGames.find(game => game.game_id === obj.game_id);
+                        // Define game information
+                        let gameInfo = "";
+                        if (gameObj && obj[key] > 0) {
+                            gameInfo = `${gameObj.date} - ${gameObj.location} ${gameObj.opp}`;
+                        }
+                        // Store game information along with the highest value
+                        record[key] = { value: obj[key], gameInfo: gameInfo };
+                    }
+                });
+            }); 
+
+
+            //HTML GEN
+            const $statContainer = $('#pRecords');
+
+            $statContainer.html('');
+            $.each(displayStats, function(index, category) {   
+                const stat = record[index];
+                const $statItem = $('<div>').addClass('stat-item');                
+                $statItem.append($('<div>').text(category).addClass('stat-label'));
+                $statItem.append($('<div>').text(stat.value).addClass('stat-value'));
+                $statItem.append($('<div>').text(stat.gameInfo).addClass('stat-value'));
+
+                $statContainer.append($statItem);
+
+            });
+        }
+
+        function populatePlayerSeasonStats(playerStats, playerGames) {             
+            // Create a map from playerGames to easily associate game id's to a year range
+            const yearMap = new Map(playerGames.map(item => [item.game_id, getYearFromDate(item.date)]));
+
+            const seasonData = playerStats.reduce((acc, curr) => {
+                const year = yearMap.get(curr.game_id);
+                acc[year] = acc[year] || Object.fromEntries(Object.entries(displayStats).map(([key, value]) => [key, 0]));
+                Object.keys(displayStats).forEach(key => {
+                    acc[year][key] += parseInt(curr[key], 10) || 0;
+                });
                 return acc;
             }, {});
 
-            const {player: players, stat: stats, game: games} = data;
-
-            // Calculate advanced stats within the loop (optional)
-            stats.forEach(player => {
-                player.points = player.goals + player.assists;
-                player.game_score = ((player.shots - player.goals) * -0.4) + (player.goals * 0.7) + (player.assist * 0.7) + (player.groundballs * 0.4) + (player.caused_turnover * 0.5) + (player.turnover * -0.4);
-            });
-
-            // Store data in cache with expiry
-            const cacheExpiry = Date.now() + (1000 * 60 * 60 * 2); // Cache for 2 hour
-            localStorage.setItem(CACHE_KEY, JSON.stringify({players, stats, games, expires: cacheExpiry}));
-
-            return {playerData: players, statData: stats, gameData: games};
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
-    }
-
-    // Helper function to check if cached data is fresh
-    function isDataFresh(cachedData) {
-        return cachedData && cachedData.expires > Date.now();
-    }
-
-    function populateTeamSeasonRecords() {
-        const yearMap = new Map(gameData.map(item => [item.game_id, getYearFromDate(item.date)]));
-        const groupedData = {};
-
-        statData.forEach(record => {
-            const year = yearMap.get(record.game_id);
-            if (year) {
-                const key = `${record.player_id}-${year}`;
-                if (!groupedData[key]) {
-                    groupedData[key] = {
-                        player_id: record.player_id,
-                        year: year,
-                    };
-
-                    Object.keys(displayStats).forEach(stat => {
-                        groupedData[key][stat] = 0;
-                    });
-                }
-
-                Object.keys(displayStats).forEach(stat => {
-                    const value = isNaN(record[stat]) ? 0 : Number(record[stat]);
-                    groupedData[key][stat] += value;
-                });
-            }
-        });
-
-        const topTenRecords = getTopTenRecordsByField(Object.values(groupedData), displayStats);
-        console.log("Season Records");
-        console.log(topTenRecords);
-
-        //HTML GEN
-        recordHTMLgen('#sRecords', topTenRecords);
-    }
-
-
-    function populateTeamCareerRecords() {
-        // Group by player_id and sum the statistics
-        const groupedSums = {};
-
-        statData.forEach(player => {
-            if (!groupedSums[player.player_id]) {
-                // Initialize the object for each player_id
-                groupedSums[player.player_id] = {
-                    player_id: player.player_id
-                };
-                Object.keys(displayStats).forEach(stat => {
-                    groupedSums[player.player_id][stat] = 0;
-                });
-            }
-
-            // Sum the statistics for each player_id
-            Object.keys(displayStats).forEach(stat => {
-                const value = isNaN(player[stat]) ? 0 : Number(player[stat]);
-                groupedSums[player.player_id][stat] += value;
-            });
-        });
-
-        // Convert groupedSums to an array for easier manipulation
-        const groupedSumsArray = Object.values(groupedSums);
-
-        // Create an object to store the top ten records for each stat
-        const topTenRecords = getTopTenRecordsByField(groupedSumsArray, displayStats);
-
-        //HTML GEN
-        recordHTMLgen('#cRecords', topTenRecords);
-    }
-
-    function populateTeamGameRecords() {
-        try {
-            const topTenRecords = getTopTenRecordsByField(statData, displayStats);
-
-            //HTML GEN
-            const $recordContainer = $('#gRecords');
-            recordHTMLgen('#gRecords', topTenRecords);
-        } catch (error) {
-            console.error('Error populating team records:', error);
-        }
-    }
-
-    function recordHTMLgen(container, topTenRecords) {
-        const $recordContainer = $(container);
-        $recordContainer.html('');
-
-        Object.entries(displayStats).forEach(([stat, label]) => {
-            const $recordBox = $('<div>').addClass('record-box');
-            $recordBox.append($('<div>').text(label).addClass('record-title'));
-
-
-            console.log(topTenRecords[stat]);
-
-            topTenRecords[stat].forEach(record => {
-                let $recordItem = $('<div>').addClass('record-item');
-                $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
-                $recordItem.append($('<span>').text(record[stat]).addClass('record-value'));
-                if(record.year)
-                    $recordItem.append($('<span>').text(record.year).addClass('record-value'));
-                $recordBox.append($recordItem);
-            });
-
-            $recordContainer.append($recordBox);
-        });
-
-    }
-
-    function getPlayerInfo(id) {
-        const player = playerData.find(player => player.player_id === id);
-        return player ? `${player.first_name} ${player.last_name}` : '';
-    }
-
-    function getTopTenRecordsByField(statData, displayStats) {
-        const topTenRecords = {};
-
-        // Iterate through each field in displayStats
-        Object.keys(displayStats).forEach(stat => {
-            // Sort the array by the current field in descending order
-            const sortedArray = statData.slice().sort((a, b) => b[stat] - a[stat]);
-
-            // Take the top ten records for the current field
-            topTenRecords[stat] = sortedArray.slice(0, 5);
-        });
-
-        return topTenRecords;
-    }
-
-    function populatePlayerList() {
-        $('#player-table').DataTable({
-            ...dataTableOptions,
-            'data': playerData,
-            'order': [[2, 'desc']],
-            'columns': [
-                {'data': 'first_name'},
-                {'data': 'last_name'},
-                {'data': 'player_id'},
-            ],
-            searching: true,
-            initComplete: function (settings, json) {
-                $('#player-table tbody tr').on('click', function () {
-                    let data = $('#player-table').DataTable().row(this).data();
-                    populatePlayerStats(data);
-                });
-            }
-        });
-    }
-
-    function populatePlayerStats(data) {
-        try {
-            //update player name
-            $('#player-stat-name').html(data.first_name + ' ' + data.last_name);
-
-            // Get player stats and gamedata
-            let playerStats = statData.filter(obj => obj["player_id"] === data.player_id).map(obj => ({...obj}));
-
-            let gameIds = playerStats.map(obj => obj['game_id']);
-
-            let playerGames = gameData.filter(obj => gameIds.includes(obj.game_id));
-
-            //Show career totals
-            populatePlayerCareerStats(playerStats);
-
-            // Begin creating an overview of the seasons they played and the stat totlas for each season
-            populatePlayerSeasonStats(playerStats, playerGames);
-
-            //Now we find their personal best for every stat and the game they accomplished it in          
-            populatePlayerRecordStats(playerStats, playerGames);
-
-            //Show our work
-            $('#content-box-player-table').hide();
-            $('#content-box-player-stats').show();
-        } catch (error) {
-            console.error('Error populating player stats:', error);
-        }
-    }
-
-    function populatePlayerCareerStats(playerStats) {
-        const stats = sumColumns(playerStats);
-
-        //HTML GEN
-        const $statContainer = $('#cStats');
-        $statContainer.html('');
-
-        Object.entries(displayStats).forEach(([stat, label]) => {
-            const $statItem = $('<div>').addClass('stat-item');
-            $statItem.append($('<div>').text(label).addClass('stat-label'));
-            $statItem.append($('<div>').text(stats[stat]).addClass('stat-value'));
-
-            $statContainer.append($statItem);
-        });
-    }
-
-    function populatePlayerRecordStats(playerStats, playerGames) {
-        const record = {};
-
-        // Iterate through each object in the statData array
-        playerStats.forEach(obj => {
-            // Iterate through each key (stat) in the object
-            Object.keys(obj).forEach(key => {
-                // Skip if key is 'game_id' or 'player_id'
-                if (key === 'game_id' || key === 'player_id') {
-                    return;
-                }
-                // Check if the value is empty or not a number
-                if (!obj[key] || isNaN(obj[key])) {
-                    // If the value is empty, set it to 0
-                    obj[key] = 0;
-                }
-                // Update highest value and corresponding game info if current value is higher
-                if (!record[key] || obj[key] > record[key].value) {
-                    // Find the corresponding game object based on game_id
-                    const gameObj = playerGames.find(game => game.game_id === obj.game_id);
-                    // Define game information
-                    let gameInfo = "";
-                    if (gameObj && obj[key] > 0) {
-                        gameInfo = `${gameObj.date} - ${gameObj.location} ${gameObj.opp}`;
-                    }
-                    // Store game information along with the highest value
-                    record[key] = {value: obj[key], gameInfo: gameInfo};
-                }
-            });
-        });
-
-        //HTML GEN
-        const $statContainer = $('#pStats');
-
-        $statContainer.html('');
-
-        Object.entries(displayStats).forEach(([stat, label]) => {
-            const statRecord = record[stat];
-            const $statItem = $('<div>').addClass('stat-item');
-            $statItem.append($('<div>').text(label).addClass('stat-label'));
-            $statItem.append($('<div>').text(statRecord.value).addClass('stat-value'));
-            $statItem.append($('<div>').text(statRecord.gameInfo).addClass('stat-value'));
-
-            $statContainer.append($statItem);
-
-        });
-    }
-
-    function populatePlayerSeasonStats(playerStats, playerGames) {
-        // Create a map from playerGames to easily associate game id's to a year range
-        const yearMap = new Map(playerGames.map(item => [item.game_id, getYearFromDate(item.date)]));
-
-        const seasonData = playerStats.reduce((acc, curr) => {
-            const year = yearMap.get(curr.game_id);
-            acc[year] = acc[year] || Object.fromEntries(Object.entries(displayStats).map(([key, value]) => [key, 0]));
-            Object.keys(displayStats).forEach(stat => {
-                acc[year][stat] += parseInt(curr[stat], 10) || 0;
-            });
-            return acc;
-        }, {});
-
-        const sortedData = {};
-        Object.keys(seasonData)
+            const sortedData = {};
+            Object.keys(seasonData)
             .sort((a, b) => b.localeCompare(a))
             .forEach(key => {
                 sortedData[key] = seasonData[key];
             });
 
-        //Lets remove previously appedned info
-        const $flexContainer = $('#sStats');
-        $flexContainer.html('');
+            console.log(seasonData);
+            console.log(sortedData);
 
-        //Generate index column
-        const flexItem = $("<div>").addClass("season-stat-col");
-        flexItem.append($("<div>").addClass("season-stat-first").text(''));
+            //Lets remove previously appedned info
+            const $flexContainer = $('.season-stat-container');
 
-        Object.values(displayStats).forEach((label) => {
-            flexItem.append($("<div>").addClass("season-stat-row").text(label));
-        });
-        $flexContainer.append(flexItem);
-
-        //Generate season columns 
-        Object.entries(sortedData).forEach(([index, value]) => {
+            $flexContainer.html('');
+            //Generate index column
             const flexItem = $("<div>").addClass("season-stat-col");
-            flexItem.append($("<div>").addClass("season-stat-row").text(index));
+            flexItem.append($("<div>").addClass("season-stat-row").text('Season'));
+            $.each(displayStats, function(index, category) {             
+                flexItem.append($("<div>").addClass("season-stat-row").text(category));
+            });
+            $flexContainer.append(flexItem);
 
-            Object.keys(displayStats).forEach((stat) => {
-                flexItem.append($("<div>").addClass("season-stat-row").text(value[stat]));
+
+            //Genrate season columns 
+            $.each(sortedData, function(index, value) {                      
+             const flexItem = $("<div>").addClass("season-stat-col");
+             flexItem.append($("<div>").addClass("season-stat-row").text(index));
+
+             $.each(displayStats, function(index, category) {             
+                flexItem.append($("<div>").addClass("season-stat-row").text(value[index]));
             });
 
 
-            // Append the flex item to the container
-            $flexContainer.append(flexItem);
-        });
-    }
+             // Append the flex item to the container
+             $flexContainer.append(flexItem);
+         });
 
-    function sumColumns(jsonArray) {
-        const sums = {};
-
-        Object.keys(displayStats).forEach(stat => {
-            sums[stat] = jsonArray.reduce((acc, obj) => {
-                // Convert string to number if possible, otherwise treat as 0
-                const value = isNaN(obj[stat]) ? 0 : Number(obj[stat]);
-                return acc + value;
-            }, 0);
-        });
-        return sums;
-    }
-
-    function getYearFromDate(dateString) {
-        const date = new Date(dateString);
-        const startYear = 2014;
-        const currentYear = new Date().getFullYear();
-        const endYear = date >= new Date(currentYear, 5, 1) ? currentYear + 1 : currentYear; // Dynamically calculate the end year
-
-        for (let year = startYear; year < endYear; year++) {
-            const startDate = new Date(year, 5, 1); // June 1st
-            const endDate = new Date(year + 1, 4, 31); // May 31st of the next year
-
-            if (date >= startDate && date <= endDate) {
-                return `${year} - ${year + 1}`;
-            }
         }
 
-        return "Date is not within any of the specified ranges";
-    }
 
-    async function refresh(tableId) {
-        $('#' + tableId).DataTable().destroy();
-    }
+        function sumColumns(jsonArray, ...columns) {
+            const sums = {};
+            columns.forEach(column => {
+                sums[column] = jsonArray.reduce((acc, obj) => {
+                    // Convert string to number if possible, otherwise treat as 0
+                    const value = isNaN(obj[column]) ? 0 : Number(obj[column]);
+                    return acc + value;
+                }, 0);
+            });
+            return sums;
+        }
 
-    $(document).ready(async function () {
-        populatePlayerList();
-        $('#content-box-player-table').show();
+        function getYearFromDate(dateString) {
+            const date = new Date(dateString);
+            const startYear = 2011;
+            const currentYear = new Date().getFullYear();
+            const endYear = date >= new Date(currentYear, 5, 1) ? currentYear + 1 : currentYear; // Dynamically calculate the end year
+            
+            for (let year = startYear; year < endYear; year++) {
+                const startDate = new Date(year, 5, 1); // June 1st
+                const endDate = new Date(year + 1, 4, 31); // May 31st of the next year
+                
+                if (date >= startDate && date <= endDate) {
+                    return `${year} - ${year + 1}`;
+                }
+            }
+            
+            return "Date is not within any of the specified ranges";
+        }
 
-        $('#go-player-stats').click(function () {
-            $('.content-box').hide();
-            $('#content-box-player-table').show();
+
+        async function refresh(tableId) {
+            $('#' + tableId).DataTable().destroy();
+        }
+
+        $(document).ready(async function() {
+            // setData();
+            populatePlayerList();
+            $('#content-box-player-table').show(); 
+
+            $('#go-player-stats').click(function(){
+                $('.content-box').hide();                
+                $('#content-box-player-table').show();                
+            });
+
+            $('#go-records').click(function(){
+                $('.content-box').hide();                
+                $('#content-box-records').show();    
+                populateTeamRecords();            
+            });
+            
+            
         });
-
-        $('#go-records').click(function () {
-            $('.content-box').hide();
-            $('#content-box-records').show();
-            populateTeamGameRecords();
-            populateTeamCareerRecords();
-            populateTeamSeasonRecords();
-        });
-    });
-</script>
+    </script>
 </body>
 </html>
