@@ -147,42 +147,42 @@
 
         .season-stat-container {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+            flex-direction: row; /* Arrange columns in a row */
+            flex-wrap: nowrap; /* Prevent wrapping */
+            justify-content: center; /* Center the content */
             max-width: 800px;
+            width: 100%;
+
         }
 
         .season-stat-col {
-            flex: 0 0 20%; /* 25% width for each column */
-            max-width: 160px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            width:100%;
+
+        }
+
+        .season-stat-col:first-child .season-stat-row{
+            justify-content: right;
+            text-align: right;
         }
 
         .season-stat-row {
-            flex: 0 0 100%; /* 25% width for each column */
-            height: 50px; /* Set height as per your requirement */
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            text-align: center;
-            line-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            min-height: 40px;
         }
 
+        /* Alternate row background for readability */
         .season-stat-row:nth-child(odd) {
-            background-color: #f2f2f2; /* Light gray background color */
+            background-color: #f2f2f2;
         }
 
+        /* Bold headers */
         .season-stat-row:first-child {
             font-weight: bold;
-        }
-
-        .season-stat-col:first-child {
-            font-weight: bold;
-        }
-
-        .season-stat-first {
-            flex: 0 0 100%; /* 25% width for each column */
-            height: 50px; /* Set height as per your requirement */
-            line-height: 50px;
-            text-align: center;
         }
     </style>
 </head>
@@ -297,7 +297,7 @@
         'groundballs': 'Groundballs',
         'caused_turnover': 'Caused Turnover',
         // 'turnover': 'Turnover', 
-        // 'draw_taken': 'Draw Taken', 
+        // 'draw_attempts': 'Draw Attempts', 
         'draw_won': 'Draw Won',
         'draw_control': 'Draw Control'
     };
@@ -608,7 +608,7 @@
 
         //Generate index column
         const flexItem = $("<div>").addClass("season-stat-col");
-        flexItem.append($("<div>").addClass("season-stat-first").text(''));
+        flexItem.append($("<div>").addClass("season-stat-row").text(''));
 
         Object.values(displayStats).forEach((label) => {
             flexItem.append($("<div>").addClass("season-stat-row").text(label));
@@ -645,7 +645,7 @@
 
     function getYearFromDate(dateString) {
         const date = new Date(dateString);
-        const startYear = 2014;
+        const startYear = 2012;
         const currentYear = new Date().getFullYear();
         const endYear = date >= new Date(currentYear, 5, 1) ? currentYear + 1 : currentYear; // Dynamically calculate the end year
 
