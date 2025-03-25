@@ -152,7 +152,6 @@
             justify-content: center; /* Center the content */
             max-width: 800px;
             width: 100%;
-
         }
 
         .season-stat-col {
@@ -183,6 +182,24 @@
         /* Bold headers */
         .season-stat-row:first-child {
             font-weight: bold;
+        }
+
+        .game-stat-container {
+            display: flex;
+            flex-direction: column; /* Arrange columns in a row */
+            flex-wrap: nowrap; /* Prevent wrapping */
+            justify-content: center; /* Center the content */
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .game-stat-container select{ 
+            font-weight: bold;
+            font-size: 1.10em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            padding: 14.2px;
         }
     </style>
 </head>
@@ -237,17 +254,24 @@
             <tr>
                 <th>First</th>
                 <th>Last</th>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
             </tr>
             </thead>
             <tfoot>
             <tr>
                 <th>First</th>
                 <th>Last</th>
-                <th>ID</th>
+                <!-- <th>ID</th> -->
             </tr>
             </tfoot>
         </table>
+    </div>
+
+    <div class='content-box' id='content-box-game-stats'>
+        <H3>Game List</H3>
+        <div class="game-stat-container" id="gsStats">
+        </div>
+
     </div>
 </div>
 
@@ -281,7 +305,7 @@
     const dataTableOptions = {
         'paging': false,
         'autoWidth': false,
-        'columnDefs': [{type: 'natural', targets: 2}],
+        'columnDefs': [{type: 'natural', targets: 1}],
         'searching': false,
         'orderCellsTop': true,
         'fixedHeader': true,
@@ -473,11 +497,11 @@
         $('#player-table').DataTable({
             ...dataTableOptions,
             'data': playerData,
-            'order': [[2, 'desc']],
+            'order': [[1, 'desc']],
             'columns': [
                 {'data': 'first_name'},
                 {'data': 'last_name'},
-                {'data': 'player_id'},
+                // {'data': 'player_id'},
             ],
             searching: true,
             initComplete: function (settings, json) {
@@ -661,6 +685,111 @@
         return "Date is not within any of the specified ranges";
     }
 
+    function groupByYear(games) {
+      return games.reduce((acc, game) => {
+        const year = parseInt(game.date.split('/')[2]); // Extract and parse year from date
+        const displayYear = `${year - 1} - ${year}`; // Format as "YYYY - YYYY"
+        if (!acc[displayYear]) {
+          acc[displayYear] = [];
+        }
+        acc[displayYear].push(game);
+        return acc;
+      }, {});
+    }
+
+    function generateGameList(games) {
+        const groupedGames = groupByYear(games);
+        $('#gsStats').html('');
+
+        const sortedYears = Object.keys(groupedGames).sort((a, b) => {
+            return parseInt(a.split(' - ')[1]) - parseInt(b.split(' - ')[1]);
+        });
+
+        const latestYear = sortedYears[sortedYears.length - 1]; // Get the latest year
+
+        // Create Year Filter Dropdown (Without "All Years")
+        let $yearFilter = $('<select id="yearFilter"></select>');
+        sortedYears.forEach(year => {
+            const yearValue = year.replace(/\s/g, '');
+            $yearFilter.append(`<option value="${yearValue}" ${year === latestYear ? 'selected' : ''}>${year}</option>`);
+        });
+
+        $('#gsStats').append($yearFilter);
+
+        const $recordBox = $('<div>');
+        sortedYears.forEach(year => {
+            const yearValue = year.replace(/\s/g, '');
+            const displayStyle = year === latestYear ? '' : 'style="display:none;"';
+          
+            let $recordItem = $(`<ul id="${yearValue}" class="game-list" ${displayStyle}></ul>`);
+            let wins = 0, losses = 0, ties = 0;
+
+            // Sort games by date
+            groupedGames[year].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            groupedGames[year].forEach(game => {
+                let result = "";
+                if (game.goals_for > game.goals_against) {
+                    wins++;
+                    result = "Win";
+                } else if (game.goals_for < game.goals_against) {
+                    losses++;
+                    result = "Loss";
+                } else {
+                    ties++;
+                    result = "Tie";
+                }
+                
+                $recordItem.append(`<li>${game.date} - ${game.location} ${game.opp} (Score: ${game.goals_for}-${game.goals_against}) - ${result}</li>`);
+            });
+
+            // Add win-loss record at the top
+            let recordText = `Record: ${wins}-${losses}`;
+            if (ties > 0) recordText += `-${ties}`;
+            $recordBox.append(`<h4 class="year-header" data-year="${yearValue}" ${displayStyle}>${recordText}</h4>`);
+            $recordBox.append($recordItem);
+        });
+
+
+        $('#gsStats').append($recordBox);
+
+        // Year Filter Change Event
+        $('#yearFilter').on('change', function () {
+            let selectedYear = $(this).val();
+            $('.game-list').hide();
+            $('.year-header').hide();
+            $(`#${selectedYear}`).show();
+            $(`.year-header[data-year="${selectedYear}"]`).show();
+        });
+    }
+
+
+
+
+// function recordHTMLgen(container, topTenRecords) {
+//         const $recordContainer = $(container);
+//         $recordContainer.html('');
+
+//         Object.entries(displayStats).forEach(([stat, label]) => {
+//             const $recordBox = $('<div>').addClass('record-box');
+//             $recordBox.append($('<div>').text(label).addClass('record-title'));
+
+
+//             console.log(topTenRecords[stat]);
+
+//             topTenRecords[stat].forEach(record => {
+//                 let $recordItem = $('<div>').addClass('record-item');
+//                 $recordItem.append($('<span>').text(getPlayerInfo(record.player_id)).addClass('record-name'));
+//                 $recordItem.append($('<span>').text(record[stat]).addClass('record-value'));
+//                 if(record.year)
+//                     $recordItem.append($('<span>').text(record.year).addClass('record-value'));
+//                 $recordBox.append($recordItem);
+//             });
+
+//             $recordContainer.append($recordBox);
+//         });
+
+//     }
     async function refresh(tableId) {
         $('#' + tableId).DataTable().destroy();
     }
@@ -681,6 +810,21 @@
             populateTeamCareerRecords();
             populateTeamSeasonRecords();
         });
+      
+        $('#go-game-stats').click(function () {
+            $('.content-box').hide();
+            $('#content-box-game-stats').show();
+            generateGameList(gameData);
+            // $('.year-header').click(function () {            
+            //     const yearId = this.getAttribute('data-year');
+            //     const list = document.getElementById(yearId);
+            //     if (list) {
+            //         list.style.display = list.style.display === 'none' ? 'block' : 'none';
+            //     }
+            // });
+        });
+
+
     });
 </script>
 </body>
